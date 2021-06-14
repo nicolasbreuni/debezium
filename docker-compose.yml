@@ -1,0 +1,53 @@
+version: '2'
+services:
+  zookeeper:
+    image: debezium/zookeeper:1.5
+  kafka:
+    image: debezium/kafka:1.5
+    links:
+      - zookeeper
+    environment:
+      - ZOOKEEPER_CONNECT=zookeeper:2181
+  mysql-sink:
+    image: mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
+      - MYSQL_DATABASE=inventory
+  mysql-source:
+    build: mysql-source
+    environment:
+      - MYSQL_ROOT_PASSWORD=debezium
+      - MYSQL_USER=mysqluser
+      - MYSQL_PASSWORD=mysqlpw
+  postgres-sink:
+    image: postgres
+    environment:
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=inventory
+  postgres-source:
+    build: postgres-source
+    environment:
+      - POSTGRES_USER=postgresuser
+      - POSTGRES_PASSWORD=postgrespw
+      - POSTGRES_DB=inventory
+  connect:
+    image: debezium/connect-jdbc-es:1.5
+    build:
+      context: connect
+    ports:
+      - 8083:8083
+    environment:
+      - BOOTSTRAP_SERVERS=kafka:9092
+      - GROUP_ID=1
+      - CONFIG_STORAGE_TOPIC=my_connect_configs
+      - OFFSET_STORAGE_TOPIC=my_connect_offsets
+      - STATUS_STORAGE_TOPIC=my_source_connect_statuses
+
+  mongodb-sink:
+    image: mongo
+    environment:
+        MONGO_INITDB_ROOT_USERNAME: root
+        MONGO_INITDB_ROOT_PASSWORD: mongopw

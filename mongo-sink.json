@@ -1,0 +1,15 @@
+{
+  "name": "mongodb-sink",
+  "config": {
+    "connector.class": "com.mongodb.kafka.connect.MongoSinkConnector",
+    "tasks.max": "1",
+    "topics": "products",
+    "connection.uri": "mongodb://root:mongopw@mongodb-sink:27017/inventory?authSource=admin",
+    "database": "inventory",
+    "collection": "products",
+    "transforms": "unwrap",
+    "transforms.unwrap.type": "io.debezium.transforms.ExtractNewRecordState",
+    "transforms.unwrap.drop.tombstones": "false",
+    "document.id.strategy": "com.mongodb.kafka.connect.sink.processor.id.strategy.FullKeyStrategy"
+  }
+}
